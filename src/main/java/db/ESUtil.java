@@ -1,17 +1,17 @@
 package db;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.net.InetAddress;
-import java.util.Map;
 
 /**
  * Desc: Elasticsearch util
@@ -56,17 +56,20 @@ public class ESUtil {
         return client.prepareGet(index, type, id).execute().actionGet();
     }
 
-    public static GetResponse get(GetRequest request) {
-        return client.get(request).actionGet();
+    public static IndexResponse create(String index, String type, String jsonSource) {
+        return client.prepareIndex(index, type).setSource(jsonSource, XContentType.JSON).execute().actionGet();
     }
 
-    public static IndexResponse create(String index, String type, String id, Map<String, Object> map) {
-        return client.prepareIndex(index, type, id)
-                .setSource(map).execute().actionGet();
+    public static IndexResponse create(String index, String type, String id, String jsonSource) {
+        return client.prepareIndex(index, type, id).setSource(jsonSource, XContentType.JSON).execute().actionGet();
     }
 
-    public static IndexResponse create(IndexRequest request) {
-        return client.index(request).actionGet();
+    public static UpdateResponse update(String index, String type, String id, String jsonDoc) {
+        return client.prepareUpdate(index, type, id).setDoc(jsonDoc, XContentType.JSON).execute().actionGet();
+    }
+
+    public static DeleteResponse delelte(String index, String type, String id) {
+        return client.prepareDelete(index, type, id).execute().actionGet();
     }
 
 }
