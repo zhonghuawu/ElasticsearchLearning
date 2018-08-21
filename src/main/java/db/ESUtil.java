@@ -4,14 +4,18 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.net.InetAddress;
+import java.util.Map;
 
 /**
  * Desc: Elasticsearch util
@@ -68,8 +72,18 @@ public class ESUtil {
         return client.prepareUpdate(index, type, id).setDoc(jsonDoc, XContentType.JSON).execute().actionGet();
     }
 
-    public static DeleteResponse delelte(String index, String type, String id) {
+    public static DeleteResponse delete(String index, String type, String id) {
         return client.prepareDelete(index, type, id).execute().actionGet();
+    }
+
+    public static SearchResponse searchAll(String index) {
+        QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
+        return client.prepareSearch(index).setQuery(queryBuilder).get();
+    }
+
+    public static SearchResponse search(String index, String name, Object text) {
+        QueryBuilder queryBuilder = QueryBuilders.matchQuery(name, text);
+        return client.prepareSearch(index).setQuery(queryBuilder).get();
     }
 
 }

@@ -4,12 +4,14 @@ import com.google.common.collect.Maps;
 import data.Blog;
 import db.ESUtil;
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 
 import java.util.Map;
 
@@ -29,7 +31,10 @@ public class ESClient {
     private static long id = 4;
 
     public static void main(String[] args) {
-        updateBlog();
+//        updateBlog();
+//        searchAll();
+//        search();
+//        deleteBlog();
     }
 
     private static void storeBlog() {
@@ -76,8 +81,30 @@ public class ESClient {
 
     private static void deleteBlog() {
         getBlog();
-        DeleteResponse response = ESUtil.delelte(index, type, String.valueOf(id));
+        DeleteResponse response = ESUtil.delete(index, type, String.valueOf(id));
         log.info("delete response: " + response);
+    }
+
+    public static void searchAll() {
+        SearchResponse response = ESUtil.searchAll(index);
+        SearchHits hits = response.getHits();
+        Map<String, Blog> results = Maps.newHashMap();
+        for (SearchHit hit : hits) {
+            String id = hit.getId();
+            Blog blog = JsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
+            results.put(id, blog);
+            System.out.println(String.format("%s: %s", id, blog.toString()));
+        }
+    }
+
+    public static void search() {
+        SearchResponse response = ESUtil.search(index, "views", 50L);
+        SearchHits hits = response.getHits();
+        for (SearchHit hit : hits) {
+            String id = hit.getId();
+            Blog blog = JsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
+            System.out.println(String.format("%s: %s", id, blog.toString()));
+        }
     }
 
 }

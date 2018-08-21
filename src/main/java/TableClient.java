@@ -3,8 +3,11 @@ import com.google.common.collect.Maps;
 import data.Blog;
 import db.client.BlogTable;
 import org.apache.log4j.Logger;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Desc:
@@ -21,9 +24,14 @@ public class TableClient {
 
     public static void main(String[] args) {
 //        storeBlog();
+//        storeBlogBatch();
 //        getBlog();
 //        updateBlog();
-        delete();
+//        delete();
+//        queryAll();
+//        query();
+//        queryRangeTime();
+        queryUseTerms();
     }
 
     private static void storeBlog() {
@@ -35,6 +43,25 @@ public class TableClient {
             log.info("store third blog success");
         } else {
             log.error("store third blog failed");
+        }
+    }
+
+    private static void storeBlogBatch() {
+        log.info("store a batch of blog by BlogTable");
+        Map<String, Blog> blogMap = Maps.newHashMap();
+        Random random = new Random();
+        for (int id = 0; id < 100; id++) {
+            String idStr = String.valueOf(id);
+            Blog blog = new Blog("title " + idStr, "text " + idStr);
+            blog.setViews(random.nextInt(100));
+            blog.setTags(Lists.asList("testing", new String[]{"id_" + idStr}));
+            blog.setTimestamp(System.currentTimeMillis());
+            blogMap.put(idStr, blog);
+        }
+        if (BlogTable.createBatch(blogMap)) {
+            log.info("create all blog succeed");
+        } else {
+            log.info("create part of blog failed");
         }
     }
 
@@ -75,6 +102,41 @@ public class TableClient {
             log.info("delete success, id: " + id);
         } else {
             log.warn("delete failed, id: " + id);
+        }
+    }
+
+    private static void queryAll() {
+        Map<String, Blog> results = BlogTable.queryAll();
+        print(results);
+    }
+
+    private static void query() {
+        QueryBuilder queryBuilder = QueryBuilders.queryStringQuery("text");
+        QueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("views").gte(50);
+        Map<String, Blog> results = BlogTable.query(rangeQueryBuilder);
+        print(results);
+    }
+
+    private static void queryRangeTime() {
+        long from = 1534780086050L;
+        long to = System.currentTimeMillis();
+        Map<String, Blog> results = BlogTable.queryRangeTime(from, to);
+        print(results);
+    }
+
+    private static void queryUseTerms() {
+        String name = "views";
+        Long[] values = new Long[] {89L, 5L};
+
+        name = "text";
+//        String[] values = new String[] {"text 28"};
+        Map<String, Blog> results = BlogTable.queryUseTerms(name, values);
+        print(results);
+    }
+
+    private static <T> void print(Map<String, T> map) {
+        for (Map.Entry<String, T> entry : map.entrySet()) {
+            log.info(String.format("%s: %s", entry.getKey(), entry.getValue().toString()));
         }
     }
 

@@ -3,6 +3,7 @@ package db.client;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 
 /**
@@ -38,6 +39,10 @@ public class BlogRequestHelper {
 
     public static DeleteRequest buildDeleteRequest(String id) {
         return new DeleteRequest(INDEX_NAME, TYPE_NAME, id);
+    }
+
+    public static SearchRequest buildSearchRequest() {
+        return new SearchRequest(INDEX_NAME).types(TYPE_NAME);
     }
 
 }

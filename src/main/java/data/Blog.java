@@ -20,6 +20,7 @@ public class Blog implements Serializable {
     private String text;
     private long views;
     private List<String> tags;
+    private long timestamp;
 
     public Blog(String title, String text) {
         this.title = title;
@@ -64,6 +65,14 @@ public class Blog implements Serializable {
         this.tags.addAll(tags);
     }
 
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
     @Override
     public String toString() {
         return "Blog{" +
@@ -71,6 +80,7 @@ public class Blog implements Serializable {
                 ", text='" + text + '\'' +
                 ", views=" + views +
                 ", tags=" + tags +
+                ", timestamp=" + timestamp +
                 '}';
     }
 }
