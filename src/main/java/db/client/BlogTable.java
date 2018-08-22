@@ -28,6 +28,8 @@ import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.Map;
 
@@ -108,7 +110,7 @@ public class BlogTable {
     public static Map<String, Blog> query(QueryBuilder queryBuilder) {
         SearchRequest request = BlogRequestHelper.buildSearchRequest();
         SearchSourceBuilder ssb = new SearchSourceBuilder();
-        ssb.query(queryBuilder);
+        ssb.query(queryBuilder).sort("timestamp");
         request.source(ssb);
         SearchResponse response = client.search(request).actionGet();
         SearchHits hits = response.getHits();
@@ -139,7 +141,7 @@ public class BlogTable {
     public static Map<String, Blog> queryUseTerms(String name, Object... values) {
         QueryBuilder queryBuilder = QueryBuilders.termsQuery(name, values);
         SearchRequest request = BlogRequestHelper.buildSearchRequest();
-        request.source(new SearchSourceBuilder().query(queryBuilder));
+        request.source(new SearchSourceBuilder().query(queryBuilder).sort("timestamp", SortOrder.DESC));
         SearchResponse response = client.search(request).actionGet();
         SearchHits hits = response.getHits();
         Map<String, Blog> results = Maps.newHashMap();
