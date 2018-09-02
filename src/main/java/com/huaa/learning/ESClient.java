@@ -1,8 +1,10 @@
-import Utils.JsonUtil;
+package com.huaa.learning;
+
+import com.huaa.Utils.JsonUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import data.Blog;
-import db.ESUtil;
+import com.huaa.learning.data.Blog;
+import com.huaa.learning.db.ESUtil;
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
@@ -37,7 +39,7 @@ public class ESClient {
 //        deleteBlog();
     }
 
-    private static void storeBlog() {
+    public static void storeBlog() {
         log.info("store blog");
         Blog blog = new Blog("My second blog entry", "Just trying this out");
         blog.setViews(50);
@@ -48,7 +50,7 @@ public class ESClient {
         }
     }
 
-    private static void storeBlog3() {
+    public static void storeBlog3() {
         log.info("store blog by third way");
         Blog blog = new Blog("My forth blog entry", "Just trying this out");
         blog.setViews(10);
@@ -61,7 +63,7 @@ public class ESClient {
         }
     }
 
-    private static void getBlog() {
+    public static void getBlog() {
         log.info("get blog");
         GetResponse getResponse = ESUtil.get(index, type, String.valueOf(id));
         if (getResponse.isExists()) {
@@ -71,7 +73,7 @@ public class ESClient {
         }
     }
 
-    private static void updateBlog() {
+    public static void updateBlog() {
         Map<String, Object> doc = Maps.newHashMap();
         doc.put("text", "text, updated by huaa");
         doc.put("title", "title, updated by huaa");
@@ -79,7 +81,7 @@ public class ESClient {
         log.info("update response: " + response);
     }
 
-    private static void deleteBlog() {
+    public static void deleteBlog() {
         getBlog();
         DeleteResponse response = ESUtil.delete(index, type, String.valueOf(id));
         log.info("delete response: " + response);

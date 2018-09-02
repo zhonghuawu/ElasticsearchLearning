@@ -1,3 +1,5 @@
+package com.huaa.learning;
+
 /**
  * Desc: test client
  *

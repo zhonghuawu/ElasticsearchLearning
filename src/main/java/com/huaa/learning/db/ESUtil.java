@@ -1,4 +1,4 @@
-package db;
+package com.huaa.learning.db;
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -15,7 +15,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.net.InetAddress;
-import java.util.Map;
+import java.util.Collection;
 
 /**
  * Desc: Elasticsearch util
@@ -30,7 +30,7 @@ public class ESUtil {
 
     private static TransportClient client;
 
-    private static String IPS = "192.168.1.6";
+    private static String IPS = "192.168.1.3";
     private static int PORT = 9300;
 
     private ESUtil() {
@@ -83,6 +83,51 @@ public class ESUtil {
 
     public static SearchResponse search(String index, String name, Object text) {
         QueryBuilder queryBuilder = QueryBuilders.matchQuery(name, text);
+        return client.prepareSearch(index).setQuery(queryBuilder).get();
+    }
+
+    public static SearchResponse termSearch(String index, String field, Object value) {
+        QueryBuilder queryBuilder = QueryBuilders.termsQuery(field, value);
+        return client.prepareSearch(index).setQuery(queryBuilder).get();
+    }
+
+    public static SearchResponse termsSearch(String index, String field, Collection<Object> values) {
+        QueryBuilder queryBuilder = QueryBuilders.termsQuery(index, field, values);
+        return client.prepareSearch(index).setQuery(queryBuilder).get();
+    }
+
+    public static SearchResponse rangeSearch(String index, String field, Object from, Object to) {
+        QueryBuilder queryBuilder = QueryBuilders.rangeQuery(field).from(from, true).to(to, false);
+        return client.prepareSearch(index).setQuery(queryBuilder).get();
+    }
+
+    public static SearchResponse existedSearch(String index, String field) {
+        QueryBuilder queryBuilder = QueryBuilders.existsQuery(field);
+        return client.prepareSearch(index).setQuery(queryBuilder).get();
+    }
+
+    public static SearchResponse prefixSearch(String index, String field, String prefix) {
+        QueryBuilder queryBuilder = QueryBuilders.prefixQuery(field, prefix);
+        return client.prepareSearch(index).setQuery(queryBuilder).get();
+    }
+
+    public static SearchResponse wildcardSearch(String index, String field, String regexp) {
+        QueryBuilder queryBuilder = QueryBuilders.wildcardQuery(field, regexp);
+        return client.prepareSearch(index).setQuery(queryBuilder).get();
+    }
+
+    public static SearchResponse fuzzySearch(String index, String field, Object value) {
+        QueryBuilder queryBuilder = QueryBuilders.fuzzyQuery(field, value);
+        return client.prepareSearch(index).setQuery(queryBuilder).get();
+    }
+
+    public static SearchResponse typeSearch(String index, String type) {
+        QueryBuilder queryBuilder = QueryBuilders.typeQuery(type);
+        return client.prepareSearch(index).setQuery(queryBuilder).get();
+    }
+
+    public static SearchResponse idsSearch(String index, String ids) {
+        QueryBuilder queryBuilder = QueryBuilders.idsQuery().addIds(ids);
         return client.prepareSearch(index).setQuery(queryBuilder).get();
     }
 

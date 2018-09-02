@@ -1,0 +1,33 @@
+{
+  "order": 1,
+  "template": "logging-*",
+  "settings": {
+    "index": {
+      "number_of_shards": "3",
+      "number_of_replicas": "1",
+      "refresh_interval": "5s"
+    }
+  },
+  "mappings": {
+    "_default_": {
+      "properties": {
+        "id": {
+          "type": "keyword"
+        },
+        "timestamp": {
+          "type": "long"
+        },
+        "content": {
+          "type": "string",
+          "index": "no"
+        }
+      },
+      "_all": {
+        "enabled": false
+      }
+    }
+  },
+  "aliases": {
+    "logging": {}
+  }
+}

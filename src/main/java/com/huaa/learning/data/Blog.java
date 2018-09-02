@@ -1,4 +1,4 @@
-package data;
+package com.huaa.learning.data;
 
 import com.google.common.collect.Lists;
 

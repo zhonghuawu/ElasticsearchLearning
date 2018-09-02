@@ -1,4 +1,4 @@
-package db.client;
+package com.huaa.learning.db.client;
 
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;

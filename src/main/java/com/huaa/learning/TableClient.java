@@ -1,7 +1,9 @@
+package com.huaa.learning;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import data.Blog;
-import db.client.BlogTable;
+import com.huaa.learning.data.Blog;
+import com.huaa.learning.db.client.BlogTable;
 import org.apache.log4j.Logger;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
