@@ -1,6 +1,7 @@
 package com.huaa.test.data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Desc:
@@ -13,9 +14,9 @@ public class Logging implements Serializable {
     private static final long serialVersionUID = 5238297658537295792L;
     private String id;
     private String content;
-    private long timestamp;
+    private Date timestamp;
 
-    public Logging(String id, String content, long timestamp) {
+    public Logging(String id, String content, Date timestamp) {
         this.id = id;
         this.content = content;
         this.timestamp = timestamp;
@@ -37,11 +38,11 @@ public class Logging implements Serializable {
         this.content = content;
     }
 
-    public long getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 

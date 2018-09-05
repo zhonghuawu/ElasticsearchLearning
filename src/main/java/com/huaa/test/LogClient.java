@@ -5,7 +5,6 @@ import com.google.common.net.InetAddresses;
 import com.huaa.Utils.JsonUtil;
 import com.huaa.test.data.AttrHistory;
 import com.huaa.test.data.Logging;
-import org.apache.lucene.search.TermQuery;
 import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesRequest;
 import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesResponse;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
@@ -14,7 +13,6 @@ import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.IndicesAdminClient;
@@ -55,7 +53,7 @@ public class LogClient {
     private static final String DateFormat = "yyyyMMdd";
     private static final java.text.DateFormat DATE_FORMAT = new SimpleDateFormat(DateFormat);
 
-    public LogClient(String esIPs, String clusterName){
+    public LogClient(String esIPs, String clusterName) {
         if (esIPs == null || esIPs.isEmpty() || clusterName == null || clusterName.isEmpty()) {
             System.out.println("please init setting for es(ip, clusterName)");
         }
@@ -83,11 +81,12 @@ public class LogClient {
             "          \"type\": \"keyword\"\n" +
             "        },\n" +
             "        \"timestamp\": {\n" +
-            "          \"type\": \"long\"\n" +
+            "          \"type\": \"date\",\n" +
+            "          \"format\": \"strict_date_optional_time || epoch_millis\"\n" +
             "        },\n" +
             "        \"content\": {\n" +
             "          \"type\": \"string\",\n" +
-            "          \"index\": false\n" +
+            "          \"index\": \"no\"\n" +
             "        }\n" +
             "      },\n" +
             "      \"_all\": {\n" +
@@ -120,11 +119,12 @@ public class LogClient {
         indicesAdminClient.preparePutTemplate(templateName).setTemplate(templateSource).get();
     }
 
-    public void storeAttrHistory(AttrHistory... attrHistorys) {
-
+    public void createLoggingTemplate() {
+        createTemplate(LoggingIndexName+"_template", LoggingTempalte);
     }
 
     private static Random random = new Random();
+
     public static int getDay() {
         int month = 20180900;
         return random.nextInt(31) + month;
@@ -135,19 +135,24 @@ public class LogClient {
         storeAux(index, loggings);
     }
 
-    public void flush() {
-        bulkProcessor.flush();
-    }
 
-    private void storeAux(String index, Object... objects) {
+    public void storeAux(String index, Object... objects) {
         if (objects == null || objects.length == 0) {
             return;
         }
         for (Object object : objects) {
             String source = JsonUtil.toJson(object);
-            bulkProcessor.add(new IndexRequest().index(index+ "-" + String.valueOf(getDay())).type(DEFAULT_TYPE).source(source, XContentType.JSON));
+            IndexRequest request = new IndexRequest()
+                    .index(String.format("%s-%s", index, DATE_FORMAT.format(System.currentTimeMillis())))
+                    .type(DEFAULT_TYPE)
+                    .source(source, XContentType.JSON);
+            bulkProcessor.add(new IndexRequest().index(index + "-" + String.valueOf(getDay())).type(DEFAULT_TYPE).source(source, XContentType.JSON));
             System.out.println("source: " + source);
         }
+    }
+
+    public void flush() {
+        bulkProcessor.flush();
     }
 
     public List<Logging> queryLoggingById(String loggingId) {
@@ -164,7 +169,7 @@ public class LogClient {
         return queryAux(Logging.class, Logging.indexName(), queryBuilder);
     }
 
-    public <T> List<T> queryAux(Class<T> classOfT, String index, QueryBuilder queryBuilder) {
+    private <T> List<T> queryAux(Class<T> classOfT, String index, QueryBuilder queryBuilder) {
         this.flush();
         SearchRequestBuilder requestBuilder = client.prepareSearch(index).setQuery(queryBuilder).addSort("timestamp", SortOrder.DESC);
         SearchResponse response = requestBuilder.get();

@@ -15,7 +15,8 @@
           "type": "keyword"
         },
         "timestamp": {
-          "type": "long"
+          "type": "date",
+          "format": "strict_date_optional_time || epoch_millis"
         },
         "content": {
           "type": "string",
