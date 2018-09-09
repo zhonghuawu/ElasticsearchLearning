@@ -12,14 +12,9 @@ import java.lang.reflect.Type;
  * @date 2018/8/19 16:16
  */
 
-public class JsonUtil {
+public class GsonUtil {
 
     private static Gson gson = new Gson();
-
-    public static <T> T fromJson(String json) {
-        return gson.fromJson(json, new TypeToken<T>() {
-        }.getType());
-    }
 
     public static <T> T fromJson(String json, Type typeOfT) {
         return gson.fromJson(json, typeOfT);

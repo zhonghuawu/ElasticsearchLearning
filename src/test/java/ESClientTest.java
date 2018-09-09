@@ -1,4 +1,4 @@
-import com.huaa.Utils.JsonUtil;
+import com.huaa.Utils.GsonUtil;
 import com.google.common.collect.Lists;
 import com.huaa.learning.ESClient;
 import com.huaa.learning.data.Blog;
@@ -126,7 +126,7 @@ public class ESClientTest {
     private static void printHits(SearchHits hits) {
         for (SearchHit hit : hits) {
             String id = hit.getId();
-            Blog blog = JsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
+            Blog blog = GsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
             System.out.println(String.format("%s: %s", id, blog.toString()));
         }
     }

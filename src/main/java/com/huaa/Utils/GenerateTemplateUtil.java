@@ -26,6 +26,7 @@ public class GenerateTemplateUtil {
                         .field("number_of_shards", "3")
                         .field("number_of_replicas", "1")
                         .field("refresh_interval", "3s")
+                        .field("max_result_window ", "50000")
                     .endObject()
                 .endObject()
                 .startObject("aliases")

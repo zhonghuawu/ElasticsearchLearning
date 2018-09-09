@@ -1,6 +1,6 @@
 package com.huaa.learning;
 
-import com.huaa.Utils.JsonUtil;
+import com.huaa.Utils.GsonUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.huaa.learning.data.Blog;
@@ -44,7 +44,7 @@ public class ESClient {
         Blog blog = new Blog("My second blog entry", "Just trying this out");
         blog.setViews(50);
         blog.setTags(Lists.asList("testing", new String[]{"counting"}));
-        IndexResponse indexResponse = ESUtil.create(index, type, String.valueOf(id), JsonUtil.toJson(blog));
+        IndexResponse indexResponse = ESUtil.create(index, type, String.valueOf(id), GsonUtil.toJson(blog));
         if (indexResponse.status().getStatus() == 200) {
             System.out.println(indexResponse);
         }
@@ -55,7 +55,7 @@ public class ESClient {
         Blog blog = new Blog("My forth blog entry", "Just trying this out");
         blog.setViews(10);
         blog.setTags(Lists.asList("test3", new String[]{"first", "second", "third"}));
-        IndexResponse response = ESUtil.create(index, type, JsonUtil.toJson(blog));
+        IndexResponse response = ESUtil.create(index, type, GsonUtil.toJson(blog));
         if (response.status() == RestStatus.CREATED) {
             log.info("store forth blog success");
         } else {
@@ -68,7 +68,7 @@ public class ESClient {
         GetResponse getResponse = ESUtil.get(index, type, String.valueOf(id));
         if (getResponse.isExists()) {
             String json = getResponse.getSourceAsString();
-            Blog blog = JsonUtil.fromJson(json, Blog.class);
+            Blog blog = GsonUtil.fromJson(json, Blog.class);
             System.out.println(blog);
         }
     }
@@ -77,7 +77,7 @@ public class ESClient {
         Map<String, Object> doc = Maps.newHashMap();
         doc.put("text", "text, updated by huaa");
         doc.put("title", "title, updated by huaa");
-        UpdateResponse response = ESUtil.update(index, type, String.valueOf(id), JsonUtil.toJson(doc));
+        UpdateResponse response = ESUtil.update(index, type, String.valueOf(id), GsonUtil.toJson(doc));
         log.info("update response: " + response);
     }
 
@@ -93,7 +93,7 @@ public class ESClient {
         Map<String, Blog> results = Maps.newHashMap();
         for (SearchHit hit : hits) {
             String id = hit.getId();
-            Blog blog = JsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
+            Blog blog = GsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
             results.put(id, blog);
             System.out.println(String.format("%s: %s", id, blog.toString()));
         }
@@ -104,7 +104,7 @@ public class ESClient {
         SearchHits hits = response.getHits();
         for (SearchHit hit : hits) {
             String id = hit.getId();
-            Blog blog = JsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
+            Blog blog = GsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
             System.out.println(String.format("%s: %s", id, blog.toString()));
         }
     }

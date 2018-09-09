@@ -1,4 +1,5 @@
 import com.google.common.collect.Lists;
+import com.huaa.Utils.DateUtil;
 import com.huaa.test.clients.LoggingClient;
 import com.huaa.test.core.ESClient;
 import com.huaa.test.data.Logging;
@@ -47,14 +48,40 @@ public class LoggingClientTest {
 
     @Test
     public void testStoreLogging() {
-        int Items = 2000;
+        int items = 2000;
         List<Logging> loggingList = Lists.newArrayList();
-        for (int i=0; i<Items+Items+1; i++) {
+        for (int i=0; i<items; i++) {
 //            Date date = new Date(System.currentTimeMillis()+random.nextInt(1000000));
-            Logging logging = new Logging(String.valueOf(i), "content_"+i);
+            Logging logging = new Logging(String.valueOf(random.nextInt(items)), "content_"+random.nextInt(items));
             loggingList.add(logging);
         }
-        client.store(loggingList.toArray(new Logging[0]));
+        for (int i=0; i<3; i++) {
+            client.store(loggingList.toArray(new Logging[0]));
+            System.out.println("wait for 10 seconds... " + i);
+            try {
+                Thread.sleep(10*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Test
+    public void testQueryPage() {
+        List<Logging> results = client.queryPage(49999, 3);
+        printLogging(results);
+    }
+
+    @Test
+    public void testQueryPageByScroll() {
+        List<Logging> results = client.queryPageByScroll(200, 6);
+        printLogging(results);
+    }
+
+    @Test
+    public void testQueryAll() {
+        List<Logging> results = client.queryAll();
+        printLogging(results);
     }
 
     @Test
@@ -65,14 +92,20 @@ public class LoggingClientTest {
 
     @Test
     public void testQueryByTimeRange() {
-        List<Logging> results = client.queryByTimeRange(1535908379023L, 1535908588464L);
+        String pastStr = "2018-09-09T16:10:59+0800";
+        Date past = DateUtil.parse(pastStr);
+        List<Logging> results = client.queryByTimeRange(past, new Date());
         printLogging(results);
     }
 
     private static void printLogging(List<Logging> loggingList) {
-        for (Logging logging : loggingList) {
-            System.out.println(logging);
+        if (loggingList == null) {
+            System.out.println("loggingList is null");
         }
+        System.out.println("size: " + loggingList.size());
+//        for (Logging logging : loggingList) {
+//            System.out.println(logging);
+//        }
 
     }
 

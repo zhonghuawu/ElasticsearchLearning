@@ -1,6 +1,6 @@
 package com.huaa.learning.db.client;
 
-import com.huaa.Utils.JsonUtil;
+import com.huaa.Utils.GsonUtil;
 import com.google.common.collect.Maps;
 import com.huaa.learning.data.Blog;
 import com.huaa.learning.db.ESUtil;
@@ -49,11 +49,11 @@ public class BlogTable {
     public static Blog get(String id) {
         GetRequest request = BlogRequestHelper.buildGetRequest(id);
         GetResponse response = client.get(request).actionGet();
-        return response.isExists() ? JsonUtil.fromJson(response.getSourceAsString(), Blog.class) : null;
+        return response.isExists() ? GsonUtil.fromJson(response.getSourceAsString(), Blog.class) : null;
     }
 
     public static boolean create(String id, Blog blog) {
-        IndexRequest request = BlogRequestHelper.buildIndexRequest(id).source(JsonUtil.toJson(blog), XContentType.JSON);
+        IndexRequest request = BlogRequestHelper.buildIndexRequest(id).source(GsonUtil.toJson(blog), XContentType.JSON);
         IndexResponse response = client.index(request).actionGet();
         return response.status() == RestStatus.CREATED;
     }
@@ -62,7 +62,7 @@ public class BlogTable {
         BulkRequest requests = new BulkRequest();
         for (Map.Entry<String, Blog> entry : blogMap.entrySet()) {
             IndexRequest request = BlogRequestHelper.buildIndexRequest();
-            request.id(entry.getKey()).source(JsonUtil.toJson(entry.getValue()), XContentType.JSON);
+            request.id(entry.getKey()).source(GsonUtil.toJson(entry.getValue()), XContentType.JSON);
             requests.add(request);
         }
         BulkResponse responses = client.bulk(requests).actionGet();
@@ -70,7 +70,7 @@ public class BlogTable {
     }
 
     public static boolean update(String id, Blog blog) {
-        UpdateRequest request = BlogRequestHelper.buildUpdateRequest(id).doc(JsonUtil.toJson(blog), XContentType.JSON);
+        UpdateRequest request = BlogRequestHelper.buildUpdateRequest(id).doc(GsonUtil.toJson(blog), XContentType.JSON);
         UpdateResponse response = client.update(request).actionGet();
         return response.status() == RestStatus.OK;
     }
@@ -96,7 +96,7 @@ public class BlogTable {
         Map<String, Blog> results = Maps.newHashMap();
         for (SearchHit hit : hits) {
             String id = hit.getId();
-            Blog blog = JsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
+            Blog blog = GsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
             results.put(id, blog);
         }
         return results;
@@ -112,7 +112,7 @@ public class BlogTable {
         Map<String, Blog> results = Maps.newHashMap();
         for (SearchHit hit : hits) {
             String id = hit.getId();
-            Blog blog = JsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
+            Blog blog = GsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
             results.put(id, blog);
         }
         return results;
@@ -127,7 +127,7 @@ public class BlogTable {
         Map<String, Blog> results = Maps.newHashMap();
         for (SearchHit hit : hits) {
             String id = hit.getId();
-            Blog blog = JsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
+            Blog blog = GsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
             results.put(id, blog);
         }
         return results;
@@ -142,7 +142,7 @@ public class BlogTable {
         Map<String, Blog> results = Maps.newHashMap();
         for (SearchHit hit : hits) {
             String id = hit.getId();
-            Blog blog = JsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
+            Blog blog = GsonUtil.fromJson(hit.getSourceAsString(), Blog.class);
             results.put(id, blog);
         }
         return results;
