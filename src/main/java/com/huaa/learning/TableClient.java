@@ -26,14 +26,14 @@ public class TableClient {
 
     public static void main(String[] args) {
 //        storeBlog();
-//        storeBlogBatch();
+        storeBlogBatch();
 //        getBlog();
 //        updateBlog();
 //        delete();
 //        queryAll();
 //        query();
 //        queryRangeTime();
-        queryUseTerms();
+//        queryUseTerms();
     }
 
     private static void storeBlog() {

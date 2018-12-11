@@ -15,8 +15,8 @@ import org.elasticsearch.action.update.UpdateRequest;
 
 public class BlogRequestHelper {
 
-    private static String INDEX_NAME = "website";
-    private static String TYPE_NAME = "blog";
+    private static String INDEX_NAME = "blog";
+    private static String TYPE_NAME = "_type";
 
     private BlogRequestHelper()
     {}

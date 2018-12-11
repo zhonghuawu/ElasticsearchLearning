@@ -1,4 +1,4 @@
-package com.huaa.learning.data;
+package com.huaa.rest.data;
 
 import com.google.common.collect.Lists;
 
@@ -6,10 +6,10 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Desc: blog info
+ * Desc:
  *
  * @author Huaa
- * @date 2018/8/19 15:57
+ * @date 2018/12/9 0:55
  */
 
 public class Blog implements Serializable {

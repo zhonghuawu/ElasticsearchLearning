@@ -1,14 +1,24 @@
 package com.huaa.learning.db;
 
+import com.huaa.Utils.GsonUtil;
 import org.apache.log4j.Logger;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
+import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.unit.ByteSizeUnit;
+import org.elasticsearch.common.unit.ByteSizeValue;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -29,9 +39,11 @@ public class ESUtil {
     private static Logger logger = Logger.getLogger(ESUtil.class);
 
     private static TransportClient client;
+    private static BulkProcessor bulkProcessor;
 
-    private static String IPS = "192.168.1.3";
+    private static String IPS = "192.168.1.7";
     private static int PORT = 9300;
+    private static String clusterName = "elasticsearch";
 
     private ESUtil() {
     }
@@ -39,12 +51,13 @@ public class ESUtil {
     static {
         logger.info("ES util init...");
         init();
+        initProcessor();
     }
 
     private static void init() {
         try {
             logger.info("get transport client");
-            Settings settings = Settings.builder().put("cluster.name", "elasticsearch").build();
+            Settings settings = Settings.builder().put("cluster.name", clusterName).build();
             client = new PreBuiltTransportClient(settings)
                     .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(IPS), PORT));
         } catch (Exception e) {
@@ -52,8 +65,56 @@ public class ESUtil {
         }
     }
 
+    private static void initProcessor() {
+        bulkProcessor = BulkProcessor.builder(client, new BulkProcessor.Listener()
+                {
+                    @Override
+                    public void beforeBulk(long executionId, BulkRequest request) {
+                        System.out.println("before bulk, executionId: "+ executionId);
+                    }
+
+                    @Override
+                    public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+                        System.out.println("after bulk, executionId: "+ executionId);
+
+                    }
+
+                    @Override
+                    public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+                        System.out.println("after bulk, executionId: "+ executionId+", exception: "+ failure);
+
+                    }
+                })
+                .setBulkActions(1000)
+                .setBulkSize(new ByteSizeValue(5, ByteSizeUnit.MB))
+                .setFlushInterval(TimeValue.timeValueSeconds(5))
+                .setConcurrentRequests(1)
+                .build();
+    }
+
     public static TransportClient getESClient() {
         return client;
+    }
+
+    public static boolean putTemplate(String templateName, String templateSource) {
+        PutIndexTemplateRequest request = new PutIndexTemplateRequest().name(templateName).source(templateSource);
+        PutIndexTemplateResponse response = client.admin().indices().putTemplate(request).actionGet();
+        return response.isAcknowledged();
+
+    }
+
+    public static void storeBulk(String index, String type, Object o) {
+        IndexRequest request = new IndexRequest(index, type).source(GsonUtil.toJson(o), XContentType.JSON);
+        bulkProcessor.add(request);
+    }
+
+    public static SearchResponse query(String index, String type, QueryBuilder queryBuilder, int pageSize, int page) {
+        SearchResponse response = client.prepareSearch(index).setTypes(type)
+                .setQuery(queryBuilder)
+                .setSize(pageSize)
+                .setFrom((page-1)*pageSize)
+                .get();
+        return response;
     }
 
     public static GetResponse get(String index, String type, String id) {
